@@ -27,3 +27,4 @@ mkdir steps
 npx bddgen && npx playwright test .features-gen/tests/features/<filename>.feature.spec.js --project=chromium --headed
 -Example
 npx bddgen && npx playwright test .features-gen/tests/features/suprea.feature.spec.js --project=chromium --headed
+
