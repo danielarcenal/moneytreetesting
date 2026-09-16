@@ -1,8 +1,21 @@
 ##### Clone the Repository #####
+-Install Gitbash First
+https://git-scm.com
+-Install Node
+https://nodejs.org/en/download/current
+
+
+
+
+##### Clone the Repository #####
 git clone https://github.com/danielarcenal/moneytreetesting.git
+-After Cloning
+npm install
+npx playwright install
 
 ##### Initialize Playwright #####
 npm init playwright@latest
+
 
 Instructions:
 -TypeScript or JavaScript? TypeScript (highly recommended for Playwright)
@@ -26,5 +39,7 @@ mkdir steps
 -Playwright command: execute in root folder
 npx bddgen && npx playwright test .features-gen/tests/features/<filename>.feature.spec.js --project=chromium --headed
 -Example
-npx bddgen && npx playwright test .features-gen/tests/features/suprea.feature.spec.js --project=chromium --headed
+npx bddgen && npx playwright test .features-gen/tests/features/openmoneytree.feature.spec.js --project=chromium --headed
 
+##### Update your Repository #####
+git pull rebase
