@@ -1,7 +1,7 @@
 Feature: Basic Navigation Commands
 
   Scenario: TC#1 : Login Test Trial
-    When I open website "hspdccms.supreaphils.com"
+    When I open website "https://spdccms.supreaphils.com/"
     And I wait for 5 seconds
     Then I see the text "SUPREA PHILS DEVELOPMENT CORPORATION"
     And I see the text "Welcome back" 
