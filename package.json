@@ -1,23 +1,16 @@
 {
-  "name": "moneytreetesting",
+  "name": "playwright-practice",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {},
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/danielarcenal/moneytreetesting.git"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/danielarcenal/moneytreetesting/issues"
-  },
-  "homepage": "https://github.com/danielarcenal/moneytreetesting#readme",
   "devDependencies": {
-    "@playwright/test": "^1.63.0",
-    "@types/node": "^22.20.3"
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.4.0",
+    "playwright-bdd": "^9.2.0"
   }
 }
