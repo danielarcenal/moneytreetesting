@@ -22,5 +22,8 @@ mkdir tests
 mkdir features
 mkdir steps
 
-
-
+##### Initializing BDD #####
+-Playwright command: execute in root folder
+npx bddgen && npx playwright test .features-gen/tests/features/<filename>.feature.spec.js --project=chromium --headed
+-Example
+npx bddgen && npx playwright test .features-gen/tests/features/suprea.feature.spec.js --project=chromium --headed
