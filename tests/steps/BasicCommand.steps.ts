@@ -281,3 +281,141 @@ When('the disabled field name {string} should contain value {string}', async ({ 
   // 2. Playwright Best Practice: Read text contents safely regardless of visibility layouts
   await expect(disabledField).toContainText(expectedValue);
 });
+
+
+
+When('I type {string} into fieldname {string}', async ({ page }, textToType: string, fieldName: string) => {
+  const textareaField = page.locator(`textarea[data-fieldname="${fieldName}"]`);
+  const inputField = page.locator(`input[data-fieldname="${fieldName}"]`);
+  const generalField = page.locator(`[data-fieldname="${fieldName}"]`);
+
+  // 1. CRUCIAL CHECK: Check if the element exists using all fallbacks
+  const totalMatches = await textareaField.count() + await inputField.count() + await generalField.count();
+  if (totalMatches === 0) {
+    throw new Error(`QA Error: The field name "${fieldName}" does not exist on this webpage.`);
+  }
+
+  // 2. Select the correct matching element
+  let targetElement;
+  if (await textareaField.count() > 0) {
+    targetElement = textareaField.first();
+  } else if (await inputField.count() > 0) {
+    targetElement = inputField.first();
+  } else {
+    targetElement = generalField.first();
+  }
+
+  // 3. Pure Direct Injection
+  await targetElement.evaluate((el: HTMLTextAreaElement | HTMLInputElement, value) => {
+    el.value = value;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+    el.blur();
+  }, textToType);
+});
+
+
+When('I touch fieldname {string}', async ({ page }, fieldName: string) => {
+  const textareaField = page.locator(`textarea[data-fieldname="${fieldName}"]`);
+  const inputField = page.locator(`input[data-fieldname="${fieldName}"]`);
+  const selectField = page.locator(`select[data-fieldname="${fieldName}"]`);
+  const generalField = page.locator(`[data-fieldname="${fieldName}"]`);
+
+  // 1. CRUCIAL CHECK: Ensure the field actually exists on the screen
+  const totalMatches = await textareaField.count() + await inputField.count() + await selectField.count() + await generalField.count();
+  if (totalMatches === 0) {
+    throw new Error(`QA Error: The field name "${fieldName}" does not exist on this webpage.`);
+  }
+
+  // 2. Prioritize clicking the specific field types, fallback to general element
+  if (await textareaField.count() > 0) {
+    await textareaField.first().click();
+  } else if (await inputField.count() > 0) {
+    await inputField.first().click();
+  } else if (await selectField.count() > 0) {
+    await selectField.first().click();
+  } else {
+    await generalField.first().click();
+  }
+});
+
+
+When('I press the button {string} inside the modal', async ({ page }, buttonText) => {
+  // 1. Locate the visible modal wrapper container
+  const modalContainer = page.locator('.modal-dialog, .modal-content, [role="dialog"], .modal').filter({ visible: true }).first();
+
+  // 2. CRUCIAL CHECK: Ensure the modal itself is open and visible on screen
+  if (await modalContainer.count() === 0) {
+    throw new Error(`QA Error: Cannot click "${buttonText}" because no visible modal or dialog box was found on the screen.`);
+  }
+
+  // 3. Look for the button/link strictly inside that modal element
+  const targetButton = modalContainer.getByRole('button', { name: buttonText, exact: true });
+  const targetLinkButton = modalContainer.getByRole('link', { name: buttonText, exact: true });
+
+  // 4. Wait for it to become visible (handles modal fade-in animations) and click it
+  if (await targetButton.count() > 0) {
+    await targetButton.first().waitFor({ state: 'visible', timeout: 4000 });
+    await targetButton.first().click();
+  } else if (await targetLinkButton.count() > 0) {
+    await targetLinkButton.first().waitFor({ state: 'visible', timeout: 4000 });
+    await targetLinkButton.first().click();
+  } else {
+    throw new Error(`QA Error: Found the modal, but could not find an interactive button or link inside it matching text "${buttonText}".`);
+  }
+});
+
+
+
+When('I type {string} into date fieldname {string}', async ({ page }, textToType: string, fieldName: string) => {
+  const inputField = page.locator(`input[data-fieldname="${fieldName}"]`);
+  const generalField = page.locator(`[data-fieldname="${fieldName}"]`);
+
+  // 1. CRUCIAL CHECK: Verify the target element exists
+  const totalMatches = await inputField.count() + await generalField.count();
+  if (totalMatches === 0) {
+    throw new Error(`QA Error: The date field name "${fieldName}" does not exist on this webpage.`);
+  }
+
+  const targetElement = (await inputField.count() > 0) ? inputField.first() : generalField.first();
+
+  // 2. Automatically transform your text into the strict framework expected format
+  let systemFormattedDate = textToType;
+  try {
+    const normalizedText = textToType.replace(/-/g, '/'); // Stabilize string characters for conversion
+    const parsedDate = new Date(normalizedText);
+
+    if (!isNaN(parsedDate.getTime())) {
+      const year = parsedDate.getFullYear();
+      const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(parsedDate.getDate()).padStart(2, '0');
+      
+      const hours = String(parsedDate.getHours()).padStart(2, '0');
+      const minutes = String(parsedDate.getMinutes()).padStart(2, '0');
+      const seconds = String(parsedDate.getSeconds()).padStart(2, '0');
+
+      // Reassemble to standard YYYY-MM-DD HH:mm:ss
+      systemFormattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+  } catch (e) {
+    // Keep raw string fallback if parsing failure triggers
+    systemFormattedDate = textToType;
+  }
+
+  // 3. Frappe Native Sync: Hook directly into the active application form controller
+  await targetElement.evaluate((el: HTMLInputElement, { name, value }) => {
+    if (typeof window !== 'undefined' && (window as any).cur_frm) {
+      // Set the values via internal hooks to completely pass verification guards
+      (window as any).cur_frm.set_value(name, value);
+    } else {
+      // Browser layout backup layer
+      el.value = value;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }, { name: fieldName, value: systemFormattedDate });
+
+  // 4. Force a blur event to lock in state alterations securely
+  await targetElement.blur();
+});
+
